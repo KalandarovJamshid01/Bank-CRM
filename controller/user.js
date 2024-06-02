@@ -10,7 +10,14 @@ const db = require('./../model/index');
 const catchErrorAsync = require('../util/catchError');
 const QRCode = require('qrcode');
 const users = db.users;
-const getAllUsers = getAll(users);
+const rates = db.rates;
+
+const getAllUsers = getAll(
+  users,
+  [{ model: rates, attributes: [] }],
+  'name',
+  'email'
+);
 const addOneUser = addOne(users);
 const getOneUser = getOne(users);
 const updateOneUser = updateOne(users);
@@ -34,7 +41,7 @@ const getQRCode = catchErrorAsync(async (req, res, next) => {
   res.send(imgBuffer);
 });
 
-
+const addRate = addOne(rates);
 
 module.exports = {
   getAllUsers,
@@ -44,4 +51,5 @@ module.exports = {
   deleteOneUser,
   deleteAllUsers,
   getQRCode,
+  addRate,
 };

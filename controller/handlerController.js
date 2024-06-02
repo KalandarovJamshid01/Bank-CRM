@@ -2,27 +2,36 @@ const AppError = require('../util/AppError');
 const catchErrorAsync = require('../util/catchError');
 const db = require('./../model/index');
 const Sequelize = db.Sequelize;
-const Op = Sequelize.Op;
+const { Op, fn, col, literal } = Sequelize;
 
 const responseFunction = require('./../util/response');
 
 const queryFunction = (req) => {
-  let paramQuerySQL = {};
-  let sort = req.query?.sort || '';
-  let page = req.query?.page || 1;
-  let limit = req.query?.limit || null;
-  let offset;
+let paramQuerySQL = {};
+let sort = req.query?.sort || '';
+let page = req.query?.page || 1;
+let limit = req.query?.limit || null;
+let offset;
 
-  // sorting
-  if (sort !== '' && typeof sort !== 'undefined') {
-    let query;
-    if (sort.charAt(0) !== '-') {
-      query = [[sort, 'ASC']];
-    } else {
-      query = [[sort.replace('-', ''), 'DESC']];
-    }
-    paramQuerySQL.order = query;
+// Sorting
+if (sort) {
+  let orderField;
+  let orderDirection = 'ASC';
+
+  if (sort.charAt(0) === '-') {
+    orderField = sort.substring(1);
+    orderDirection = 'DESC';
+  } else {
+    orderField = sort;
   }
+
+  if (orderField === 'avg') {
+    orderField = fn('AVG', col('rates.rate'));
+  }
+
+  paramQuerySQL.order = [[orderField, orderDirection]];
+}
+
 
   // pagination
   if (limit) {
@@ -189,7 +198,11 @@ const getAll = (Model, options, searchField1, searchField2) => {
     }
 
     const data = await Model.findAll({
+      attributes: {
+        include: [[fn('AVG', col('rates.rate')), 'averageRate']],
+      },
       ...query,
+      group: ['users.id'],
       ...queryPage,
     });
 
