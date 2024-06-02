@@ -6,6 +6,7 @@ const {
   updateOneUser,
   deleteOneUser,
   deleteAllUsers,
+  getQRCode
 } = require('./../controller/user');
 const {
   protect,
@@ -23,7 +24,7 @@ router.route('/').get(protect, role('admin'), getAllUsers).post(
 
 router.route('/all').delete(protect, role('admin'), deleteAllUsers);
 router.route('/me').get(protect, addParamUser, getOneUser);
-
+router.route("/qrcode/:id").get(protect,getQRCode)
 router
   .route('/:id')
   .get(protect, role('admin'), getOneUser)

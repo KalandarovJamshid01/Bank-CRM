@@ -38,12 +38,12 @@ const createToken = (id) => {
 // });
 
 const signIn = catchErrorAsync(async (req, res, next) => {
-  const { id, password } = req.body;
-  if (!(id && password)) {
+  const { email, password } = req.body;
+  if (!(email && password)) {
     return next(new AppError('Please, enter password and id', 400));
   }
   const user = await users.findOne({
-    where: { id: id },
+    where: { email: email },
   });
   if (!user) {
     return next(
@@ -66,7 +66,7 @@ const signIn = catchErrorAsync(async (req, res, next) => {
     );
   }
 
-  const { refreshToken, accessToken } = await createToken(id);
+  const { refreshToken, accessToken } = await createToken(user.id);
   responseFunction(req, res, 201, {
     refreshToken,
     accessToken,

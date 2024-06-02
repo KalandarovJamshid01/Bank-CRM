@@ -34,8 +34,6 @@ const getQRCode = catchErrorAsync(async (req, res, next) => {
   res.send(imgBuffer);
 });
 
-
-
 module.exports = {
   getAllUsers,
   addOneUser,
