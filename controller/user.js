@@ -19,7 +19,9 @@ const getAllUsers = getAll(
   'email'
 );
 const addOneUser = addOne(users);
-const getOneUser = getOne(users);
+const getOneUser = getOne(users, [
+  { model: rates, attributes: ['rate', 'comment', 'createdAt'] },
+]);
 const updateOneUser = updateOne(users);
 const deleteOneUser = deleteOne(users);
 const deleteAllUsers = deleteAll(users);

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const uploadFile = require('./../controller/uploadFile');
+const uploadFile = require('./../controller/upload');
 
 router
   .route('/')

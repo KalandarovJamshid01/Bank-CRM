@@ -10,6 +10,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const user = require('./../route/user');
 const auth = require('./../route/auth');
+const upload = require('./../route/upload');
 app.use(morgan('tiny'));
 app.set('trust proxy', 1);
 app.use('/uploads', express.static('uploads'));
@@ -42,6 +43,7 @@ app.use(express.json());
 
 app.use('/api/v1/users', user);
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/upload', upload);
 app.all('*', function (req, res, next) {
   next(new AppError(`This url has not found: ${req.originalUrl}`, 404));
 });
