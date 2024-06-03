@@ -3,35 +3,34 @@ const catchErrorAsync = require('../util/catchError');
 const db = require('./../model/index');
 const Sequelize = db.Sequelize;
 const { Op, fn, col, literal } = Sequelize;
-
+const sequelize = require('sequelize');
 const responseFunction = require('./../util/response');
 
 const queryFunction = (req) => {
-let paramQuerySQL = {};
-let sort = req.query?.sort || '';
-let page = req.query?.page || 1;
-let limit = req.query?.limit || null;
-let offset;
+  let paramQuerySQL = {};
+  let sort = req.query?.sort || '';
+  let page = req.query?.page || 1;
+  let limit = req.query?.limit || null;
+  let offset;
 
-// Sorting
-if (sort) {
-  let orderField;
-  let orderDirection = 'ASC';
+  // Sorting
+  if (sort) {
+    let orderField;
+    let orderDirection = 'ASC';
 
-  if (sort.charAt(0) === '-') {
-    orderField = sort.substring(1);
-    orderDirection = 'DESC';
-  } else {
-    orderField = sort;
+    if (sort.charAt(0) === '-') {
+      orderField = sort.substring(1);
+      orderDirection = 'DESC';
+    } else {
+      orderField = sort;
+    }
+
+    if (orderField === 'avg') {
+      orderField = fn('AVG', col('rates.rate'));
+    }
+
+    paramQuerySQL.order = [[orderField, orderDirection]];
   }
-
-  if (orderField === 'avg') {
-    orderField = fn('AVG', col('rates.rate'));
-  }
-
-  paramQuerySQL.order = [[orderField, orderDirection]];
-}
-
 
   // pagination
   if (limit) {
@@ -105,9 +104,25 @@ const getOne = (Model, options) => {
           id: req.params.id,
         },
         include: options,
+        attributes: {
+          include: [
+            [
+              // Use a subquery to calculate the average rate
+              sequelize.literal(`(
+                SELECT AVG(r.rate)
+                FROM rates AS r
+                WHERE r.userId = users.id
+              )`),
+              'averageRate',
+            ],
+          ],
+        },
       });
     } else {
       data = await Model.findOne({
+        attributes: {
+          include: [[fn('AVG', col('rates.rate')), 'averageRate']],
+        },
         where: {
           id: req.params.id,
         },

@@ -29,7 +29,7 @@ router.route('/qrcode/:id').get(protect, getQRCode);
 
 router
   .route('/:id')
-  .get(protect, role('admin'), getOneUser)
+  .get(protect, getOneUser)
   .patch(protect, checkUser, bcryptFunc, updateOneUser)
   .delete(protect, role('admin'), deleteOneUser);
 module.exports = router;
