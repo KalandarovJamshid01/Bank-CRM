@@ -9,6 +9,10 @@ const {
 const db = require('./../model/index');
 const catchErrorAsync = require('../util/catchError');
 const QRCode = require('qrcode');
+const excelToJson = require('convert-excel-to-json');
+const parceUrl = require('parse-url');
+const bcrypt = require('bcryptjs');
+const responseFunction = require('./../util/response');
 const users = db.users;
 const rates = db.rates;
 
@@ -45,6 +49,40 @@ const getQRCode = catchErrorAsync(async (req, res, next) => {
 
 const addRate = addOne(rates);
 
+const addUserByFile = catchErrorAsync(async (req, res, next) => {
+  const path = parceUrl(req.body.url);
+  const result = excelToJson({
+    sourceFile: `${__dirname}/..${path.pathname}`,
+  });
+  if (!result) {
+    return next(new AppError('Faylni saqlashda xatolik yuz berdi', 402));
+  }
+
+  const bcryptFunc = (password) => {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(`${password}`, salt);
+    return hash;
+  };
+
+  result[`${Object.keys(result)[0]}`].map(async (item) => {
+    item.D = bcryptFunc(item?.D);
+    await users.create({
+      name: item?.A,
+      email: item?.B,
+      position: item?.C,
+      password: item?.D,
+    });
+  });
+
+  responseFunction(
+    req,
+    res,
+    200,
+    'Created',
+    result[`${Object.keys(result)[0]}`].length
+  );
+});
+
 module.exports = {
   getAllUsers,
   addOneUser,
@@ -54,4 +92,5 @@ module.exports = {
   deleteAllUsers,
   getQRCode,
   addRate,
+  addUserByFile,
 };

@@ -8,6 +8,7 @@ const {
   deleteAllUsers,
   getQRCode,
   addRate,
+  addUserByFile,
 } = require('./../controller/user');
 const {
   protect,
@@ -25,6 +26,7 @@ router
 router.route('/all').delete(protect, role('admin'), deleteAllUsers);
 router.route('/me').get(protect, addParamUser, getOneUser);
 router.route('/rate').post(addRate);
+router.route('/file').post(addUserByFile);
 router.route('/qrcode/:id').get(protect, getQRCode);
 
 router
