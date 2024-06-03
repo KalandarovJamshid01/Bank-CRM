@@ -7,7 +7,7 @@ const {
   deleteOneUser,
   deleteAllUsers,
   getQRCode,
-  addRate
+  addRate,
 } = require('./../controller/user');
 const {
   protect,
@@ -17,15 +17,14 @@ const {
   addParamUser,
 } = require('./../controller/verify');
 
-router.route('/').get(protect, role('admin'), getAllUsers).post(
-  // protect, role('admin'),
-  bcryptFunc,
-  addOneUser
-);
+router
+  .route('/')
+  .get(protect, role('admin'), getAllUsers)
+  .post(protect, role('admin'), bcryptFunc, addOneUser);
 
 router.route('/all').delete(protect, role('admin'), deleteAllUsers);
 router.route('/me').get(protect, addParamUser, getOneUser);
-router.route("/rate").post(addRate)
+router.route('/rate').post(addRate);
 router.route('/qrcode/:id').get(protect, getQRCode);
 
 router
