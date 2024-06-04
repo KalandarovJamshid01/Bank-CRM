@@ -43,8 +43,9 @@ const getQRCode = catchErrorAsync(async (req, res, next) => {
   const imgBuffer = Buffer.from(base64Data, 'base64');
 
   // Set response content type and send image buffer
+  res.setHeader('Content-Disposition', 'attachment; filename=qr-code.png');
   res.setHeader('Content-Type', 'image/png');
-  res.download(imgBuffer);
+  res.send(imgBuffer);
 });
 
 const addRate = addOne(rates);

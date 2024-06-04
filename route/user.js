@@ -27,7 +27,7 @@ router.route('/all').delete(protect, role('admin'), deleteAllUsers);
 router.route('/me').get(protect, addParamUser, getOneUser);
 router.route('/rate').post(addRate);
 router.route('/file').post(protect, addUserByFile);
-router.route('/qrcode/:id').get(protect, getQRCode);
+router.route('/qrcode/:id').get(getQRCode);
 
 router
   .route('/:id')
