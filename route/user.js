@@ -26,12 +26,12 @@ router
 router.route('/all').delete(protect, role('admin'), deleteAllUsers);
 router.route('/me').get(protect, addParamUser, getOneUser);
 router.route('/rate').post(addRate);
-router.route('/file').post(addUserByFile);
+router.route('/file').post(protect, addUserByFile);
 router.route('/qrcode/:id').get(protect, getQRCode);
 
 router
   .route('/:id')
-  .get(protect, getOneUser)
+  .get(getOneUser)
   .patch(protect, checkUser, bcryptFunc, updateOneUser)
   .delete(protect, role('admin'), deleteOneUser);
 module.exports = router;
