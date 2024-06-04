@@ -32,7 +32,8 @@ const deleteAllUsers = deleteAll(users);
 
 const getQRCode = catchErrorAsync(async (req, res, next) => {
   // Generate QR code as a data URL
-  const url = `${process.env.SERVER_URL}/users/${req.params.id}`;
+  const user = await users.findOne({ where: { id: req.params.id } });
+  const url = `https://rating-bar-front.vercel.app/?userId=${user.id}`;
 
   const qrCodeDataUrl = await QRCode.toDataURL(url);
 
@@ -43,7 +44,10 @@ const getQRCode = catchErrorAsync(async (req, res, next) => {
   const imgBuffer = Buffer.from(base64Data, 'base64');
 
   // Set response content type and send image buffer
-  res.setHeader('Content-Disposition', 'attachment; filename=qr-code.png');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename=${user.name}_qr.png`
+  );
   res.setHeader('Content-Type', 'image/png');
   res.send(imgBuffer);
 });
