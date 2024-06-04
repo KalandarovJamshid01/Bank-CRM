@@ -7,6 +7,8 @@ const {
   deleteAll,
 } = require('./handlerController');
 const db = require('./../model/index');
+const sequelize = db.sequelize;
+const { QueryTypes } = require('sequelize');
 const catchErrorAsync = require('../util/catchError');
 const QRCode = require('qrcode');
 const excelToJson = require('convert-excel-to-json');
@@ -88,6 +90,61 @@ const addUserByFile = catchErrorAsync(async (req, res, next) => {
   );
 });
 
+const getUserStats = catchErrorAsync(async (req, res, next) => {
+  const { id } = req.params;
+  let { start, end, limit, page } = req.query;
+  limit = limit || 10000;
+  start = start || '2023-03-06';
+  end = end || new Date().toISOString();
+  page = page || 1;
+  console.log(id, start, end, page, limit);
+  const offset = (page - 1) * limit;
+  const query = `SELECT 
+    id, 
+    rate, 
+    comment, 
+    createdAt, 
+    AVG(rate) OVER (PARTITION BY userId) as averagerate
+FROM 
+    rates 
+WHERE 
+    userId = :id
+    AND createdAt BETWEEN :start AND :end
+LIMIT :limit 
+OFFSET :offset;
+`;
+  const stats = await sequelize.query(query, {
+    replacements: {
+      id,
+      start,
+      end,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    },
+    type: QueryTypes.SELECT,
+  });
+
+  //   const queryCount = `SELECT
+  //     id,
+  //     rate,
+  //     comment,
+  //     createdAt,
+  // FROM
+  //     rates
+  // WHERE
+  //     userId = :id
+  //     AND createdAt BETWEEN :start AND :end`;
+  //   const queryStats = await sequelize.query(queryCount, {
+  //     replacements: {
+  //       id,
+  //       start,
+  //       end,
+  //     },
+  //     type: QueryTypes.SELECT,
+  //   });
+  responseFunction(req, res, 200, stats, 100);
+});
+
 module.exports = {
   getAllUsers,
   addOneUser,
@@ -98,4 +155,5 @@ module.exports = {
   getQRCode,
   addRate,
   addUserByFile,
+  getUserStats,
 };

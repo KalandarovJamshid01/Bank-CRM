@@ -25,7 +25,7 @@ const queryFunction = (req) => {
       orderField = sort;
     }
 
-    if (orderField === 'avg') {
+    if (orderField === 'averageRate') {
       orderField = fn('AVG', col('rates.rate'));
     }
 
